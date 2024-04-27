@@ -38,7 +38,7 @@ start :-
 		split_lines(LL,S),
 		create_relations(S),
 		hamiltonianPath(Res),
-		write(Res),
+		write_lines2(Res),
 		halt.
 
 nodes(L) :- setof(X,Y^(rel(X,Y);rel(Y,X)),L).
@@ -59,5 +59,10 @@ path(X,Y,Init,[Sortedpair|P],Unused) :-
     sort([X,Z],Sortedpair),
     path(Z,Y,Init,P,Unusednew).
 
-hamiltonianPath(Respath) :- nodes([H|_]),findall(P,path(H,H,P),Ps), maplist(sort, Ps, SortedPaths), sort(SortedPaths, Respath).
+hamiltonianPath(Respath) :- nodes([H|_]), findall(P,path(H,H,P),Ps), maplist(sort, Ps, SortedPaths), sort(SortedPaths, Respath).
 
+write_lines2([]).
+write_lines2([H|T]) :- add_separators(H,Res), atomic_list_concat(Res,' ',Res2), writeln(Res2), write_lines2(T).
+
+add_separators([],[]).
+add_separators([H|T],[S|R]) :- atomic_list_concat(H,'-',S), add_separators(T,R).
