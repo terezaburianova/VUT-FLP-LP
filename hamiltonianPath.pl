@@ -1,9 +1,45 @@
-rel(a,b).
-rel(a,c).
-rel(a,d).
-rel(c,b).
-rel(b,d).
-rel(c,d).
+read_line(L,C) :-
+	get_char(C),
+	(isEOFEOL(C), L = [], !;
+		read_line(LL,_),% atom_codes(C,[Cd]),
+		[C|LL] = L).
+
+isEOFEOL(C) :-
+	C == end_of_file;
+	(char_code(C,Code), Code==10).
+    
+read_lines(Ls) :-
+	read_line(L,C),
+	( C == end_of_file, Ls = [] ;
+	read_lines(LLs), Ls = [L|LLs]
+	).
+
+:- dynamic rel/2.
+
+split_line([],[[]]) :- !.
+split_line([' '|T], [[]|S1]) :- !, split_line(T,S1).
+split_line([32|T], [[]|S1]) :- !, split_line(T,S1).    % aby to fungovalo i s retezcem na miste seznamu
+split_line([H|T], [[H|G]|S1]) :- split_line(T,[G|S1]). % G je prvni seznam ze seznamu seznamu G|S1
+
+split_lines([],[]).
+split_lines([L|Ls],[H|T]) :- split_lines(Ls,T), split_line(L,H).
+
+create_relations([]).
+create_relations([Head|Rest]) :- create_relation(Head), create_relations(Rest).
+create_relation([X,Y]) :- 
+	member(R1,X),
+	member(R2,Y),
+	assertz(rel(R1,R2)).
+create_relation(_).
+
+start :-
+		prompt(_, ''),
+		read_lines(LL),
+		split_lines(LL,S),
+		create_relations(S),
+		hamiltonianPath(Res),
+		write(Res),
+		halt.
 
 nodes(L) :- setof(X,Y^(rel(X,Y);rel(Y,X)),L).
 nodes_related(X,Y) :- rel(X,Y);rel(Y,X).
