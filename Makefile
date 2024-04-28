@@ -1,2 +1,2 @@
 all:
-	swipl -q -g start -o flp23-log -c hamiltonianPath.pl
+	swipl -G16g -q -g start -o flp23-log -c hamiltonianPath.pl
