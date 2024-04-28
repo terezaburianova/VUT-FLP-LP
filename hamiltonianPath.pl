@@ -1,6 +1,6 @@
-/** VUT FIT, FLP - Logický projekt: Prolog */
-/** Hamiltonovské kružnice */
-/** Autor: Tereza Burianová (xburia28) */
+/** VUT FIT, FLP - Logický projekt: Prolog
+ * Hamiltonovské kružnice
+ * Autor: Tereza Burianová (xburia28) */
 
 /** Čtení vstupu - převzato z input2.pl. */
 read_line(L,C) :-
