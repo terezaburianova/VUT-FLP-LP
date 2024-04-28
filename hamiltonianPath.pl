@@ -1,7 +1,7 @@
 read_line(L,C) :-
 	get_char(C),
 	(isEOFEOL(C), L = [], !;
-		read_line(LL,_),% atom_codes(C,[Cd]),
+		read_line(LL,_),
 		[C|LL] = L).
 
 isEOFEOL(C) :-
@@ -18,8 +18,8 @@ read_lines(Ls) :-
 
 split_line([],[[]]) :- !.
 split_line([' '|T], [[]|S1]) :- !, split_line(T,S1).
-split_line([32|T], [[]|S1]) :- !, split_line(T,S1).    % aby to fungovalo i s retezcem na miste seznamu
-split_line([H|T], [[H|G]|S1]) :- split_line(T,[G|S1]). % G je prvni seznam ze seznamu seznamu G|S1
+split_line([32|T], [[]|S1]) :- !, split_line(T,S1).
+split_line([H|T], [[H|G]|S1]) :- split_line(T,[G|S1]).
 
 split_lines([],[]).
 split_lines([L|Ls],[H|T]) :- split_lines(Ls,T), split_line(L,H).
@@ -33,13 +33,13 @@ create_relation([X,Y]) :-
 create_relation(_).
 
 start :-
-		prompt(_, ''),
-		read_lines(LL),
-		split_lines(LL,S),
-		create_relations(S),
-		hamiltonianPath(Res),
-		write_lines2(Res),
-		halt.
+	prompt(_, ''),
+	read_lines(LL),
+	split_lines(LL,S),
+	create_relations(S),
+	hamiltonianPath(Res),
+	write_lines2(Res),
+	halt.
 
 nodes(L) :- setof(X,Y^(rel(X,Y);rel(Y,X)),L).
 nodes_related(X,Y) :- rel(X,Y);rel(Y,X).
@@ -59,10 +59,22 @@ path(X,Y,Init,[Sortedpair|P],Unused) :-
     sort([X,Z],Sortedpair),
     path(Z,Y,Init,P,Unusednew).
 
-hamiltonianPath(Respath) :- nodes([H|_]), findall(P,path(H,H,P),Ps), maplist(sort, Ps, SortedPaths), sort(SortedPaths, Respath).
+hamiltonianPath(Respath) :- 
+	nodes([H|_]), 
+	findall(P,path(H,H,P),Ps), 
+	maplist(sort, Ps, SortedPaths), 
+	sort(SortedPaths, Respaths),
+	twoNodesEdgecase(Respaths,Respath).
+
+twoNodesEdgecase(L,[]) :- length(L,1).
+twoNodesEdgecase(L,L).
 
 write_lines2([]).
-write_lines2([H|T]) :- add_separators(H,Res), atomic_list_concat(Res,' ',Res2), writeln(Res2), write_lines2(T).
+write_lines2([H|T]) :- 
+	add_separators(H,Res), 
+	atomic_list_concat(Res,' ',Res2), 
+	writeln(Res2), 
+	write_lines2(T).
 
 add_separators([],[]).
 add_separators([H|T],[S|R]) :- atomic_list_concat(H,'-',S), add_separators(T,R).
