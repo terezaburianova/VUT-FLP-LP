@@ -1,3 +1,8 @@
+/** VUT FIT, FLP - Logický projekt: Prolog */
+/** Hamiltonovské kružnice */
+/** Autor: Tereza Burianová (xburia28) */
+
+/** Čtení vstupu - převzato z input2.pl. */
 read_line(L,C) :-
 	get_char(C),
 	(isEOFEOL(C), L = [], !;
@@ -14,8 +19,6 @@ read_lines(Ls) :-
 	read_lines(LLs), Ls = [L|LLs]
 	).
 
-:- dynamic rel/2.
-
 split_line([],[[]]) :- !.
 split_line([' '|T], [[]|S1]) :- !, split_line(T,S1).
 split_line([32|T], [[]|S1]) :- !, split_line(T,S1).
@@ -24,6 +27,8 @@ split_line([H|T], [[H|G]|S1]) :- split_line(T,[G|S1]).
 split_lines([],[]).
 split_lines([L|Ls],[H|T]) :- split_lines(Ls,T), split_line(L,H).
 
+/** Dynamické vytvoření predikátů znázorňujících vztahy mezi vrcholy (hrany) na základě vstupu. */
+:- dynamic rel/2.
 create_relations([]).
 create_relations([Head|Rest]) :- create_relation(Head), create_relations(Rest).
 create_relation([X,Y]) :- 
@@ -32,6 +37,7 @@ create_relation([X,Y]) :-
 	assertz(rel(R1,R2)).
 create_relation(_).
 
+/** Vstupní bod programu. */
 start :-
 	prompt(_, ''),
 	read_lines(LL),
@@ -41,15 +47,19 @@ start :-
 	write_lines2(Res),
 	halt.
 
+/** Získání seznamu existujících vrcholů ze vztahů (hran). */
 nodes(L) :- setof(X,Y^(rel(X,Y);rel(Y,X)),L).
+
+/** Vztahy mezi vrcholy jsou oboustranné - graf je neorientovaný. */
 nodes_related(X,Y) :- rel(X,Y);rel(Y,X).
 
+/** Nalezení hamiltonovských kružnic metodou brute force. */
 path(X,Y,P) :- nodes(L), path(X,Y,X,P,L).
+
 path(X,Y,Init,[Sortedpair],Unused) :- 
     delete(Unused,X,Unusednew),
     Unusednew==[], 
-    nodes_related(X,Y), 
-    Y==Init,
+    nodes_related(X,Init), 
     sort([X,Y],Sortedpair).
 
 path(X,Y,Init,[Sortedpair|P],Unused) :- 
@@ -59,6 +69,7 @@ path(X,Y,Init,[Sortedpair|P],Unused) :-
     sort([X,Z],Sortedpair),
     path(Z,Y,Init,P,Unusednew).
 
+/** Nalezení všech hamiltonovských kružnic pro daný graf, seřazení vrcholů a hran, odstranění duplikátů. */
 hamiltonianPath(Respath) :- 
 	nodes([H|_]), 
 	findall(P,path(H,H,P),Ps), 
@@ -66,9 +77,12 @@ hamiltonianPath(Respath) :-
 	sort(SortedPaths, Respaths),
 	twoNodesEdgecase(Respaths,Respath).
 
-twoNodesEdgecase(L,[]) :- length(L,1).
-twoNodesEdgecase(L,L).
+/** Odstranění nevalidního výstupu kružnice mezi dvěma vrcholy - hrany se neopakují dle definice grafu. */
+twoNodesEdgecase([],[]).
+twoNodesEdgecase([Head|Rest],Res) :- length(Head,1), twoNodesEdgecase(Rest,Res).
+twoNodesEdgecase([Head|Rest],[Head|Res]) :- twoNodesEdgecase(Rest,Res).
 
+/** Výpis výsledků - převzato z input2.pl a modifikováno. */
 write_lines2([]).
 write_lines2([H|T]) :- 
 	add_separators(H,Res), 
